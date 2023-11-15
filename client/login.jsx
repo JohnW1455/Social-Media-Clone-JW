@@ -80,26 +80,8 @@ const SignupWindow = (props) => {
 };
 
 const init = () => {
-    const loginButton = document.getElementById('loginButton');
-    const signupButton = document.getElementById('signupButton');
-    const changePassButton = document.getElementById('changePassButton');
-
-    loginButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        ReactDOM.render(<LoginWindow />,
-            document.getElementById('content'));
-        return false;
-    });
-
-    signupButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        ReactDOM.render(<SignupWindow />,
-            document.getElementById('content'));
-        return false;
-    });
-
     ReactDOM.render(<LoginWindow />,
-        document.getElementById('content'));
+        document.querySelector('#login-content'));
 };
 
 window.onload = init;
