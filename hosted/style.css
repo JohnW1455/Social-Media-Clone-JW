@@ -28,6 +28,14 @@ body {
     background-color: black;
 }
 
+#login-input {
+    grid-row-start: 2;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+}
+
 #login-img {
     grid-column-start: 1;
 }
@@ -40,9 +48,42 @@ body {
 #login-content {
     height: 100vh;
     display:grid;
+    grid-template-rows: 38.5%  32.5% 30%;
+
     align-content: center;
-    background-color: #d4d4d4;
-    grid-column-start: 2;
+    background-image: linear-gradient(to bottom right, rgb(166, 166, 166) , rgb(255, 255, 255) 30%,rgb(255, 255, 255) 70%, rgb(166, 166, 166) 100%);
+}
+
+#header {
+    grid-row-start: 1;
+    text-align: center;
+    font-size: 10rem;
+    height: 38.5vh;
+    margin: 0;
+}
+
+#create-header {
+    display: inline;
+    grid-row-start: 1;
+    font-size: 2.25rem;
+    text-align: center;
+    margin: 0;
+}
+
+#signup-container {
+    display: grid;
+}
+
+#login-link-swap {
+    grid-row-start: 3;
+    padding-top: 3vh;
+    text-align: center;
+    font-size: 1.1em;
+    padding-top: 10px;
+}
+
+#login-swap {
+    color: blue;
 }
 
 .navlink {
@@ -125,7 +166,7 @@ body {
     margin: 0 auto;
     text-align: center;
 
-    padding-top: 50px;
+    padding-top: 10px;
     padding-bottom: 50px;
     font-size: 1.2em;
 }
@@ -136,9 +177,9 @@ body {
 
 .mainForm label {
     display: inline-block;
-    width: 150px;
-    margin-right: 10px;
-    text-align: right;
+    margin-top: 10px;
+    width: 200px;
+    text-align: center;
     font-size: 1.2em;
 }
 
@@ -179,6 +220,7 @@ body {
     font-size: 1.1em;
     width: 180px;
     border-radius: 6px;
+    /* margin-top: 10px; */
 }
 
 #user:focus,
