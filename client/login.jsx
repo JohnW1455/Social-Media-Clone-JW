@@ -87,6 +87,7 @@ const LoginWindow = (props) => {
 
 const HandleClick = (toggleBtn) => {
     if (toggleBtn.innerHTML === 'Create Account') {
+        document.querySelector('#login-error').innerHTML = '';
         toggleBtn.innerHTML = 'Go Back to Login';
         ReactDOM.render(<SignupWindow />,
             document.getElementById('login-input'));
