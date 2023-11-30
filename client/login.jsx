@@ -92,6 +92,7 @@ const HandleClick = (toggleBtn) => {
         ReactDOM.render(<SignupWindow />,
             document.getElementById('login-input'));
     } else {
+        document.querySelector('#login-error').innerHTML = '';
         toggleBtn.innerHTML = 'Create Account';
         ReactDOM.render(<LoginWindow />,
             document.getElementById('login-input'));
