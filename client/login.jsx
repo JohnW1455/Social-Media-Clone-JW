@@ -86,13 +86,16 @@ const LoginWindow = (props) => {
 };
 
 const HandleClick = (toggleBtn) => {
+    const errorText = document.querySelector('#login-error');
     if (toggleBtn.innerHTML === 'Create Account') {
-        document.querySelector('#login-error').innerHTML = '';
+        errorText.innerHTML = '';
+        errorText.setAttribute('style', 'padding-top: 15px');
         toggleBtn.innerHTML = 'Go Back to Login';
         ReactDOM.render(<SignupWindow />,
             document.getElementById('login-input'));
     } else {
-        document.querySelector('#login-error').innerHTML = '';
+        errorText.innerHTML = '';
+        errorText.removeAttribute('style', 'padding-top: 15px');
         toggleBtn.innerHTML = 'Create Account';
         ReactDOM.render(<LoginWindow />,
             document.getElementById('login-input'));

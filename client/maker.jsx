@@ -157,6 +157,25 @@ const displayMessage = (msg) => {
 }
 
 const init = () => { 
+    const changePassButton = document.getElementById('changePassButton');
+    const main = document.getElementById('mainScreenButton');
+
+    changePassButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        ReactDOM.render(<ChangePassWindow />,
+            document.getElementById('MessageForm'));
+        document.querySelector('#messages').style.display = 'none';
+        return false;
+    });
+
+    main.addEventListener('click', e => {
+        e.preventDefault();
+        ReactDOM.render(<MessageForm />,
+            document.getElementById('MessageForm'));
+        document.querySelector('#messages').style.display = 'block';
+        return false;
+    })
+
     ReactDOM.render(
         <MessageForm />,
         document.getElementById('MessageForm')
