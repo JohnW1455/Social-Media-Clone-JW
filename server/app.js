@@ -12,6 +12,7 @@ const RedisStore = require('connect-redis').default;
 const redis = require('redis');
 
 const router = require('./router.js');
+const socketSetup = require('./io.js');
 
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
@@ -40,23 +41,26 @@ redisClient.connect().then(() => {
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
 
-  app.use(session({
+  const sessionSettings = session({
     key: 'sessionid',
     store: new RedisStore({
       client: redisClient,
     }),
-    secret: 'Domo Arigato',
+    secret: 'Pitter Tag',
     resave: false,
     saveUninitialized: false,
-  }));
+  });
+
+  app.use(sessionSettings);
 
   app.engine('handlebars', expressHandlebars.engine({ defaultLayout: '' }));
   app.set('view engine', 'handlebars');
   app.set('views', `${__dirname}/../views`);
 
   router(app);
+  const server = socketSetup(app, sessionSettings);
 
-  app.listen(port, (err) => {
+  server.listen(port, (err) => {
     if (err) { throw err; }
     console.log(`Listening on port ${port}`);
   });

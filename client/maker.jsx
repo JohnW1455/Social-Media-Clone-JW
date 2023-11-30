@@ -2,40 +2,55 @@ const helper = require('./helper.js');
 const React = require('react');
 const ReactDOM = require('react-dom');
 
-const handleDomo = (e) => {
+const socket = io();
+
+// const handleDomo = (e) => {
+//     e.preventDefault();
+//     helper.hideError();
+
+//     const name = e.target.querySelector('#domoName').value;
+//     const age = e.target.querySelector('#domoAge').value;
+//     const color = e.target.querySelector('#domoColor').value;
+
+//     if (!name || !age || !color) {
+//         helper.handleError('All fields are required');
+//         return false;
+//     }
+
+//     helper.sendPost(e.target.action, {name, age, color}, loadDomosFromServer);
+
+//     return false;
+// }
+
+const handleMessage = (e) => {
     e.preventDefault();
-    helper.hideError();
 
-    const name = e.target.querySelector('#domoName').value;
-    const age = e.target.querySelector('#domoAge').value;
-    const color = e.target.querySelector('#domoColor').value;
+    const text = e.target.querySelector('#messageInput').value;
 
-    if (!name || !age || !color) {
+    if (!text) {
         helper.handleError('All fields are required');
         return false;
     }
 
-    helper.sendPost(e.target.action, {name, age, color}, loadDomosFromServer);
+    socket.emit('chat message', text);
+    console.log('success');
+
+    helper.sendPost(e.target.action, {text});
 
     return false;
 }
 
-const DomoForm = (props) => {
+const MessageForm = (props) => {
     return (
-        <form id="domoForm"
-            onSubmit={handleDomo}
-            name="domoForm"
+        <form id="postForm"
+            onSubmit={handleMessage}
+            name="messageForm"
             action="/maker"
             method="POST"
-            className="domoForm"
+            className="messageForm"
         >
-            <label htmlFor="name">Name: </label>
-            <input id="domoName" type="text" name="name" placeholder="Domo Name" />
-            <label htmlFor="color">Color: </label>
-            <input id="domoColor" type="text" name="name" placeholder="Domo Color" />
-            <label htmlFor="age">Age: </label>
-            <input id="domoAge" type="number" name="age" min="0" />
-            <input className="makeDomoSubmit" type="submit" value="Make Domo"/>
+            <textarea id="messageInput" type="text" name="message" placeholder="Message" />
+            <input id="postBtn" className="emitMessage" type="submit" value="Post"/>
         </form>
     )
 }
@@ -69,7 +84,6 @@ const DomoList = (props) => {
 
 const changePass = (e) => {
     e.preventDefault();
-    helper.hideError();
 
     const username = e.target.querySelector('#user').value;
     const pass = e.target.querySelector('#pass').value;
@@ -122,34 +136,35 @@ const loadDomosFromServer = async () => {
     );
 }
 
+const loadMessagesFromServer = async () => {
+    const response = await fetch('/getMessages');
+    const data = await response.json();
+
+    data.messages.forEach(message => {
+        const fullMsg = {
+            username: message.username,
+            text: message.content,
+        }
+        displayMessage(fullMsg);
+    });
+}
+
+const displayMessage = (msg) => {
+    const messageDiv = document.createElement('div');
+    messageDiv.innerText = `${msg.username}: ${msg.text}`;
+    messageDiv.id = 'board';
+    document.getElementById('messages').prepend(messageDiv);
+}
+
 const init = () => { 
-    const changePassButton = document.getElementById('changePassButton');
-    const makeDomosButton = document.getElementById('makeDomosButton');
-
-    changePassButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        ReactDOM.render(<ChangePassWindow />,
-            document.getElementById('domos'));
-        return false;
-    });
-
-    makeDomosButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        loadDomosFromServer();
-        return false;
-    });
-
     ReactDOM.render(
-        <DomoForm />,
-        document.getElementById('makeDomo')
+        <MessageForm />,
+        document.getElementById('MessageForm')
     );
 
-    ReactDOM.render(
-        <DomoList domos={[]} />,
-        document.getElementById('domos')
-    )
+    loadMessagesFromServer();
 
-    loadDomosFromServer();
+    socket.on('chat message', displayMessage);
 }
 
 window.onload = init;

@@ -1,9 +1,8 @@
 const handleError = (message) => {
-    // document.getElementById('errorMessage').textContent = message;
-    // document.getElementById('domoMessage').classList.remove('hidden');
+    document.getElementById('login-error').textContent = message;
 };
 
-const sendPost = async (url, data, handler) => {
+const sendPost = async (url, data) => {
   const response = await fetch(url, {
     method: 'POST',
     headers: {
@@ -13,7 +12,6 @@ const sendPost = async (url, data, handler) => {
   });
 
   const result = await response.json();
-  // document.getElementById('domoMessage').classList.add('hidden');
 
   if(result.redirect) {
     window.location = result.redirect;
@@ -22,18 +20,9 @@ const sendPost = async (url, data, handler) => {
   if(result.error) {
     handleError(result.error);
   }
-
-  if(handler) {
-    handler(result);
-  }
-};
-
-const hideError = () => {
-    // document.getElementById('domoMessage').classList.add('hidden');
 };
 
 module.exports = {
     handleError,
     sendPost,
-    hideError,
 }

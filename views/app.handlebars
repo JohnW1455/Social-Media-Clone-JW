@@ -1,29 +1,28 @@
 <html lang="en">
+
 <head>
-  <meta charset="utf-8"/>
+  <meta charset="utf-8" />
   <title>DomoMaker</title>
-  <link rel="shortcut icon" href="/assets/img/favicon.png"/>
-  <link rel="stylesheet" type="text/css" href="/assets/style.css"/>
+  <link rel="shortcut icon" href="/assets/img/favicon.png" />
+  <link rel="stylesheet" type="text/css" href="/assets/style.css" />
 </head>
-<body>
+
+<body id="app-grid">
   <nav><a href="/login"></a>
     <div class="navlink"><a href="/logout">Log out</a></div>
-    <div class="navlink"><a id="makeDomosButton" href="/maker">Make Domos</a></div>
     <div class="navlink"><a id="changePassButton" href="/changePass">Change Password</a></div>
   </nav>
 
-  <section id="makeDomo">
+  <div id="middle">
+    <section id="MessageForm">
 
-  </section>
-  <section id="domos">
-    
-  </section>
+    </section>
+    <div id="messages">
 
-  <div id="domoMessage" class='hidden'>
-    <img id="speech" src="/assets/img/speech.png" alt="speech box"/>
-    <h3><span id="errorMessage"></span></h3>
-    <img id="domo" src="assets/img/domo.png" alt="domo"/>
+    </div>
   </div>
+  <script src="/socket.io/socket.io.js"></script>
   <script src="/assets/appBundle.js"></script>
 </body>
+
 </html>
