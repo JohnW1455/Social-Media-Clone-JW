@@ -1,6 +1,7 @@
 const helper = require('./helper.js');
 const React = require('react');
 const ReactDOM = require('react-dom');
+const { useState, useEffect } = React;
 
 const socket = io();
 
@@ -25,17 +26,15 @@ const socket = io();
 const handleMessage = (e) => {
     e.preventDefault();
 
-    const text = e.target.querySelector('#messageInput').value;
+    const content = e.target.querySelector('#messageInput').value;
 
-    if (!text) {
+    if (!content) {
         helper.handleError('All fields are required');
         return false;
     }
 
-    socket.emit('chat message', text);
+    socket.emit('chat message', content);
     console.log('success');
-
-    helper.sendPost(e.target.action, {text});
 
     return false;
 }
@@ -55,29 +54,66 @@ const MessageForm = (props) => {
     )
 }
 
-const DomoList = (props) => {
-    if (props.domos.length === 0) {
-        return (
-            <div className="domoList">
-                <h3 className='emptyDomo'>No Domos Yet</h3>
-            </div>
-        )
-    }
+// const DomoList = (props) => {
+//     if (props.domos.length === 0) {
+//         return (
+//             <div className="domoList">
+//                 <h3 className='emptyDomo'>No Domos Yet</h3>
+//             </div>
+//         )
+//     }
 
-    const domoNodes = props.domos.map(domo => {
+//     const domoNodes = props.domos.map(domo => {
+//         return (
+//             <div key={domo._id} className="domo">
+//                 <img src="/assets/img/domoface.jpeg" alt="domo face" className='domoFace' />
+//                 <h3 className='domoName'>Name: {domo.name}</h3>
+//                 <h3 className='domoAge'>Age: {domo.age}</h3>
+//                 <h3 className='domoColor'>Color: {domo.color}</h3>
+//             </div>
+//         );
+//     });
+
+//     return (
+//         <div className='domoList'>
+//             {domoNodes}
+//         </div>
+//     )
+// }
+
+const MessageContainer = (props) => {
+    const [messages, setMessages] = useState(props.messages);
+
+    useEffect(async () => {
+        socket.on('chat message', msg => {
+            setMessages(old => [msg, ...old]);
+        });
+
+        const response = await fetch('/getMessages');
+        const messageArray = await response.json();
+        setMessages(messageArray);
+        
+    }, []);
+
+    console.log(messages);
+    if (messages.length === 0) {
         return (
-            <div key={domo._id} className="domo">
-                <img src="/assets/img/domoface.jpeg" alt="domo face" className='domoFace' />
-                <h3 className='domoName'>Name: {domo.name}</h3>
-                <h3 className='domoAge'>Age: {domo.age}</h3>
-                <h3 className='domoColor'>Color: {domo.color}</h3>
+            <div>
             </div>
         );
+    }
+
+    const messageList = messages.map(message => {
+        return (
+            <div key={message._id}>
+                <h2>{message.username}: <p>{message.content}</p></h2>
+            </div>
+        )
     });
 
     return (
-        <div className='domoList'>
-            {domoNodes}
+        <div>
+            {messageList}
         </div>
     )
 }
@@ -136,18 +172,18 @@ const loadDomosFromServer = async () => {
     );
 }
 
-const loadMessagesFromServer = async () => {
-    const response = await fetch('/getMessages');
-    const data = await response.json();
+// const loadMessagesFromServer = async () => {
+//     const response = await fetch('/getMessages');
+//     const data = await response.json();
 
-    data.messages.forEach(message => {
-        const fullMsg = {
-            username: message.username,
-            text: message.content,
-        }
-        displayMessage(fullMsg);
-    });
-}
+//     data.messages.forEach(message => {
+//         const fullMsg = {
+//             username: message.username,
+//             text: message.content,
+//         }
+//         displayMessage(fullMsg);
+//     });
+// }
 
 const displayMessage = (msg) => {
     const messageDiv = document.createElement('div');
@@ -181,9 +217,12 @@ const init = () => {
         document.getElementById('MessageForm')
     );
 
-    loadMessagesFromServer();
+    ReactDOM.render(
+        <MessageContainer messages={[]}/>,
+        document.getElementById('messages')
+    );
 
-    socket.on('chat message', displayMessage);
+    //socket.on('chat message', displayMessage);
 }
 
 window.onload = init;

@@ -1,14 +1,28 @@
 const http = require('http');
 const { Server } = require('socket.io');
+const Message = require('./models/Message');
 
 let io;
 
-const handleChatMessage = (socket, msg) => {
+const handleChatMessage = async (socket, msg) => {
+  const messageData = {
+    content: msg,
+    sender: socket.request.session.account._id,
+    username: socket.request.session.account.username,
+  };
+
+  try {
+    const newMessage = new Message(messageData);
+    await newMessage.save();
+  } catch (err) {
+    console.log(err);
+  }
+
   socket.rooms.forEach((room) => {
     if (room === socket.id) return;
     const fullMsg = {
       username: socket.request.session.account.username,
-      text: msg,
+      content: msg,
     };
 
     io.to(room).emit('chat message', fullMsg);
