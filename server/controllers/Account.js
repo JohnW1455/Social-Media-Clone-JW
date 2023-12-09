@@ -1,6 +1,7 @@
 const models = require('../models');
 
 const { Account } = models;
+const { Message } = models;
 
 const loginPage = (req, res) => res.render('login');
 
@@ -76,7 +77,7 @@ const signup = async (req, res) => {
     const hash = await Account.generateHash(pass);
     const newAccount = new Account({ username, password: hash });
     await newAccount.save();
-    //req.session.account = Account.toAPI(newAccount);
+    // req.session.account = Account.toAPI(newAccount);
     return res.json({ redirect: '/login' });
   } catch (err) {
     console.log(err);
@@ -87,10 +88,57 @@ const signup = async (req, res) => {
   }
 };
 
+const getPremium = async (req, res) => {
+  const doc = await Account.findById(req.session.account._id).select('premium').exec();
+  return res.status(200).json(doc);
+};
+
+const setPremium = async (req, res) => {
+  try {
+    const doc = await Account.findById(req.session.account._id);
+    doc.premium = !doc.premium;
+    await doc.save();
+    req.session.account = Account.toAPI(doc);
+    return res.status(200);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ error: 'An error occured!' });
+  }
+};
+
+const addFollowed = async (req, res) => {
+  try {
+    console.log(req.body.id);
+    const doc = await Message.findById(req.body.id);
+    console.log(doc);
+    const accSender = await Account.findById(doc.sender);
+    console.log(accSender);
+    const follower = await Account.findById(req.session.account._id);
+    console.log(follower);
+
+    if (req.session.account.followedUsers.includes(accSender._id)) {
+      const newArray = req.session.account.followedUsers.filter((user) => user !== accSender._id);
+      req.session.account.followedUsers = newArray;
+    } else {
+      req.session.account.followedUsers.push(accSender._id);
+    }
+    await doc.save();
+
+    console.log(`${req.session.account.followedUsers.length} success`);
+    return res.status(200).json({ message: 'all good!' });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ error: 'An error occured!' });
+  }
+};
+
 module.exports = {
   loginPage,
   login,
   logout,
   signup,
   changePass,
+  getPremium,
+  setPremium,
+  addFollowed,
 };

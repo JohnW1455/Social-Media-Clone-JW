@@ -13,6 +13,10 @@ const MessageSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  usersLiked: {
+    type: Array,
+    default: [],
+  },
   createdDate: {
     type: Date,
     default: Date.now,

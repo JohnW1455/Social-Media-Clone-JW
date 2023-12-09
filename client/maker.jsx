@@ -5,28 +5,10 @@ const { useState, useEffect } = React;
 
 const socket = io();
 
-// const handleDomo = (e) => {
-//     e.preventDefault();
-//     helper.hideError();
-
-//     const name = e.target.querySelector('#domoName').value;
-//     const age = e.target.querySelector('#domoAge').value;
-//     const color = e.target.querySelector('#domoColor').value;
-
-//     if (!name || !age || !color) {
-//         helper.handleError('All fields are required');
-//         return false;
-//     }
-
-//     helper.sendPost(e.target.action, {name, age, color}, loadDomosFromServer);
-
-//     return false;
-// }
-
 const handleMessage = (e) => {
     e.preventDefault();
 
-    const content = e.target.querySelector('#messageInput').value;
+    let content = e.target.querySelector('#messageInput').value;
 
     if (!content) {
         helper.handleError('All fields are required');
@@ -34,12 +16,26 @@ const handleMessage = (e) => {
     }
 
     socket.emit('chat message', content);
-    console.log('success');
+    content = '';
 
     return false;
 }
 
 const MessageForm = (props) => {
+    const [charLim, setCharLim] = useState(100);
+    const [count, setCount] = useState(100);
+
+    useEffect(async () => {
+        const response = await fetch('/isPremium');
+        const premiumBool = await response.json();
+
+        console.log(premiumBool.premium);
+        if (premiumBool.premium) {
+            setCharLim(500);
+            setCount(500);
+        }
+    }, []);
+
     return (
         <form id="postForm"
             onSubmit={handleMessage}
@@ -48,54 +44,74 @@ const MessageForm = (props) => {
             method="POST"
             className="messageForm"
         >
-            <textarea id="messageInput" type="text" name="message" placeholder="Message" />
-            <input id="postBtn" className="emitMessage" type="submit" value="Post"/>
+            <textarea id="messageInput"
+                type="text"
+                name="message"
+                placeholder="Message"
+                maxLength={charLim}
+                onChange={e => setCount(charLim - e.target.value.length)} />
+            <input id="postBtn" className="emitMessage" type="submit" value="Post" />
+            <p id='letterCount'>{count}</p>
         </form>
     )
 }
-
-// const DomoList = (props) => {
-//     if (props.domos.length === 0) {
-//         return (
-//             <div className="domoList">
-//                 <h3 className='emptyDomo'>No Domos Yet</h3>
-//             </div>
-//         )
-//     }
-
-//     const domoNodes = props.domos.map(domo => {
-//         return (
-//             <div key={domo._id} className="domo">
-//                 <img src="/assets/img/domoface.jpeg" alt="domo face" className='domoFace' />
-//                 <h3 className='domoName'>Name: {domo.name}</h3>
-//                 <h3 className='domoAge'>Age: {domo.age}</h3>
-//                 <h3 className='domoColor'>Color: {domo.color}</h3>
-//             </div>
-//         );
-//     });
-
-//     return (
-//         <div className='domoList'>
-//             {domoNodes}
-//         </div>
-//     )
-// }
 
 const MessageContainer = (props) => {
     const [messages, setMessages] = useState(props.messages);
 
     useEffect(async () => {
-        socket.on('chat message', msg => {
-            setMessages(old => [msg, ...old]);
-        });
-
         const response = await fetch('/getMessages');
         const messageArray = await response.json();
         setMessages(messageArray);
-        
+        // console.log(messages);
     }, []);
 
-    console.log(messages);
+    const sortMessages = (msg) => {
+        setMessages(old => [msg, ...old]);
+    }
+
+    const updateLikes = (data) => {
+        console.log("message Liked");
+        const tempMessages = [...messages];
+
+        tempMessages.forEach(message => {
+            if (message._id === data.messageId) {
+                console.log(data.likeCount);
+                message.likeCount = data.likeCount;
+            }
+        });
+        setMessages(tempMessages);
+    };
+
+    useEffect(() => {
+        socket.on('chat message', sortMessages);
+        return () => socket.off('chat message', sortMessages);
+        // socket.on('like post', updateLikes);
+    }, [messages]);
+
+    useEffect(() => {
+        socket.on('like post', updateLikes);
+    }, [messages]);
+
+    const handleLike = async (e, id) => {
+        e.preventDefault();
+        socket.emit('like post', id);
+        return false;
+    }
+
+    const handleFollow = async (e, id) => {
+        e.preventDefault();
+        console.log(id);
+        const response = await fetch('/addFollowed', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({id}),
+        });
+        return false;
+    }
+
     if (messages.length === 0) {
         return (
             <div>
@@ -104,9 +120,15 @@ const MessageContainer = (props) => {
     }
 
     const messageList = messages.map(message => {
+        console.log(message);
         return (
             <div key={message._id}>
-                <h2>{message.username}: <p>{message.content}</p></h2>
+                <h3>{message.username}: <p>{message.content}</p></h3>
+                <p>{message.likeCount} Likes</p>
+                <button type='submit' onClick={(e) => handleLike(e, message._id)}>Like</button>
+                {!message.isOwnPost &&
+                    <button type='submit' onClick={(e) => handleFollow(e, message._id)}>Follow</button>
+                }
             </div>
         )
     });
@@ -125,7 +147,7 @@ const changePass = (e) => {
     const pass = e.target.querySelector('#pass').value;
     const pass2 = e.target.querySelector('#pass2').value;
     const pass3 = e.target.querySelector('#pass3').value;
-    
+
     if (!username || !pass || !pass2 || !pass3) {
         helper.handleError('All fields are required');
         return false;
@@ -135,7 +157,7 @@ const changePass = (e) => {
         helper.handleError('New passwords do not match');
     }
 
-    helper.sendPost('/changePass', {username, pass, pass2, pass3});
+    helper.sendPost('/changePass', { username, pass, pass2, pass3 });
 
     return false;
 }
@@ -157,33 +179,10 @@ const ChangePassWindow = (props) => {
             <input id="pass2" type="password" name="pass2" placeholder="new password" />
             <label htmlFor="pass">New Password: </label>
             <input id="pass3" type="password" name="pass3" placeholder="retype new" />
-            <input className="formSubmit" type="submit" value="Change Password"/>
+            <input className="formSubmit" type="submit" value="Change Password" />
         </form>
     );
 };
-
-const loadDomosFromServer = async () => {
-    const response = await fetch('/getDomos');
-    const data = await response.json();
-
-    ReactDOM.render(
-        <DomoList domos={data.domos}/>,
-        document.getElementById('domos')
-    );
-}
-
-// const loadMessagesFromServer = async () => {
-//     const response = await fetch('/getMessages');
-//     const data = await response.json();
-
-//     data.messages.forEach(message => {
-//         const fullMsg = {
-//             username: message.username,
-//             text: message.content,
-//         }
-//         displayMessage(fullMsg);
-//     });
-// }
 
 const displayMessage = (msg) => {
     const messageDiv = document.createElement('div');
@@ -192,9 +191,10 @@ const displayMessage = (msg) => {
     document.getElementById('messages').prepend(messageDiv);
 }
 
-const init = () => { 
+const init = async () => {
     const changePassButton = document.getElementById('changePassButton');
     const main = document.getElementById('mainScreenButton');
+    const premiumBtn = document.getElementById('activatePremium');
 
     changePassButton.addEventListener('click', (e) => {
         e.preventDefault();
@@ -212,17 +212,19 @@ const init = () => {
         return false;
     })
 
+    premiumBtn.addEventListener('click', async e => {
+        const response = await fetch('/setPremium', { method: 'post' });
+    })
+
     ReactDOM.render(
         <MessageForm />,
         document.getElementById('MessageForm')
     );
 
     ReactDOM.render(
-        <MessageContainer messages={[]}/>,
+        <MessageContainer messages={[]} />,
         document.getElementById('messages')
     );
-
-    //socket.on('chat message', displayMessage);
 }
 
 window.onload = init;

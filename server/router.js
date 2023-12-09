@@ -14,7 +14,13 @@ const router = (app) => {
   app.get('/logout', mid.requiresLogin, controllers.Account.logout);
 
   app.get('/maker', mid.requiresLogin, controllers.Message.makerPage);
-  //app.post('/maker', mid.requiresLogin, controllers.Message.saveMessage);
+
+  app.get('/isPremium', mid.requiresLogin, controllers.Account.getPremium);
+  app.post('/setPremium', mid.requiresLogin, controllers.Account.setPremium);
+
+  app.post('/setLikes', mid.requiresLogin, controllers.Message.setLikes);
+
+  app.post('/addFollowed', mid.requiresLogin, controllers.Account.addFollowed);
 
   app.get('/', mid.requiresSecure, mid.requiresLogout, controllers.Account.loginPage);
 };
