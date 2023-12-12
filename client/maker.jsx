@@ -105,6 +105,7 @@ const MessageContainer = (props) => {
     // orders the messages so that new messages are on the top
     const sortMessages = (msg) => {
         setMessages(old => [msg, ...old]);
+        document.querySelector('#messageInput').value = '';
     };
 
     // goes through all the messages and updates
