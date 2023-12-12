@@ -1,7 +1,6 @@
 const models = require('../models');
 
 const { Account } = models;
-const { Message } = models;
 
 // loads the login page when it is requested
 const loginPage = (req, res) => res.render('login');
@@ -77,17 +76,17 @@ const signup = async (req, res) => {
   const pass = `${req.body.pass}`;
   const pass2 = `${req.body.pass2}`;
 
-   // check to make sure the fields aren't empty
+  // check to make sure the fields aren't empty
   if (!username || !pass || !pass2) {
     return res.status(400).json({ error: 'All fields and required!' });
   }
 
- // check to make sure the password is the same as the retype
+  // check to make sure the password is the same as the retype
   if (pass !== pass2) {
     return res.status(400).json({ error: 'Passwords do not match!' });
   }
 
-  // creates new account if the 
+  // creates new account if the
   try {
     const hash = await Account.generateHash(pass);
     const newAccount = new Account({ username, password: hash });

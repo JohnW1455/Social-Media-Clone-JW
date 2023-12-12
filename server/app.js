@@ -1,4 +1,4 @@
-// this file contains a bunch of server stuff to make sure 
+// this file contains a bunch of server stuff to make sure
 // it runs correctly and with the right add ons
 
 require('dotenv').config();

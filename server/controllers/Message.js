@@ -18,14 +18,14 @@ const getMessages = async (req, res) => {
     if (!account) {
       return res.status(500).json({ error: 'Error retrieving messages' });
     }
-    
+
     // aggregate search allows of a very precise look into database
     const posts = await Message.aggregate([
       {
         // add extra fields to data for things used
         // in other places of the server and app
         $addFields: {
-          // bool for whether the message is from 
+          // bool for whether the message is from
           // an account the user follows
           isFollowed: {
             $cond: {

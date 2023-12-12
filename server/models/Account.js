@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 
-// arbitrary number to make sure password 
+// arbitrary number to make sure password
 // hashes are more complicated
 const saltRounds = 10;
 
@@ -46,7 +46,7 @@ AccountSchema.statics.toAPI = (doc) => ({
 // Helper function to hash a password
 AccountSchema.statics.generateHash = (password) => bcrypt.hash(password, saltRounds);
 
-// uses bcrypt wizardry to make sure accounts in the 
+// uses bcrypt wizardry to make sure accounts in the
 // database match what a user inputs when the log in
 AccountSchema.statics.authenticate = async (username, password, callback) => {
   try {

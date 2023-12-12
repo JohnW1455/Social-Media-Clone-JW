@@ -5,7 +5,7 @@ const Account = require('./models/Account');
 
 let io;
 // this file is the socket.io set up and functionality file
-// socket.io allows for real time events to be shown to 
+// socket.io allows for real time events to be shown to
 // all users currently using the service
 
 // method that handles the like events from the user
@@ -17,7 +17,7 @@ const handleLike = async (socket, id) => {
   try {
     // finds message in database by its object id
     const doc = await Message.findById(id);
-   
+
     // if the user has already liked the post and they click
     // like again, they will unlike it
     if (doc.usersLiked.includes(socket.request.session.account._id)) {
@@ -77,9 +77,9 @@ const handleChatMessage = async (socket, msg) => {
       sender: socket.request.session.account._id,
       content: msg,
       likeCount: 0,
-      // this bool means that accounts of new posts won't 
+      // this bool means that accounts of new posts won't
       // be able to be followed until users reload
-      // the page. Didn't have time to figure out 
+      // the page. Didn't have time to figure out
       // a solution to this problem
       isOwnPost: true,
       _id: holder,
@@ -92,10 +92,10 @@ const handleChatMessage = async (socket, msg) => {
 // similar to how likes work
 // handles the follow user event
 // checks the DB for appropriate data
-// then ends that 
+// then ends that
 const handleFollower = async (socket, id) => {
   // assembles this json through the following logic
-  let data = {};
+  const data = {};
 
   try {
     console.log(id);
@@ -104,10 +104,12 @@ const handleFollower = async (socket, id) => {
     const follower = await Account.findById(socket.request.session.account._id);
 
     data.sender = accSender._id;
-    // if the user follows the account already and clicks 
+    // if the user follows the account already and clicks
     // unfollow, the user will be removed from the followedUser list
     if (follower.followedUsers.includes(accSender._id)) {
-      const newArray = follower.followedUsers.filter((user) => user.toString() !== accSender._id.toString());
+      const newArray = follower.followedUsers.filter(
+        (user) => user.toString() !== accSender._id.toString(),
+      );
       follower.followedUsers = newArray;
       data.followBool = false;
     } else {
@@ -122,10 +124,10 @@ const handleFollower = async (socket, id) => {
 
   socket.rooms.forEach((room) => {
     if (room === socket.id) return;
-    console.log("attemping emit");
+    console.log('attemping emit');
     io.to(room).emit('follow user', data);
   });
-}
+};
 
 // sets up socket to use session settings
 // also sets up the channels and matching methods
