@@ -192,9 +192,34 @@ const MessageContainer = (props) => {
     )
 }
 
+// react component that has fields for letting 
+// users change their password
+const ChangePasswordWindow = (props) => {
+    return (
+        <form 
+            id="changePassForm"
+            name="changePassForm"
+            onSubmit={sendPass}
+            action="/changePass"
+            method="POST"
+            className="mainForm"
+        >
+            <label htmlFor="user">Username: </label>
+            <input id="user" type="text" name="username" placeholder="username" />
+            <label htmlFor="pass">Old Password: </label>
+            <input id="pass" type="password" name="pass" placeholder="old password" />
+            <label htmlFor="pass">New Password: </label>
+            <input id="pass2" type="password" name="pass2" placeholder="new password" />
+            <label htmlFor="pass">New Password: </label>
+            <input id="pass3" type="password" name="pass3" placeholder="retype new" />
+            <input className="formSubmit" type="submit" value="Change Password" />
+        </form>
+    );
+};
+
 // method that contacts the server about a user 
 // changing their password
-const changePass = (e) => {
+const sendPass = (e) => {
     e.preventDefault();
 
     // checks to see if the data is valid
@@ -217,67 +242,58 @@ const changePass = (e) => {
     return false;
 }
 
-// react component that has fields for letting 
-// users change their password
-const ChangePassWindow = (props) => {
-    return (
-        <form id="changePassForm"
-            name="changePassForm"
-            onSubmit={changePass}
-            action="/changePass"
-            method="POST"
-            className="mainForm"
-        >
-            <label htmlFor="username">Username: </label>
-            <input id="user" type="text" name="username" placeholder="username" />
-            <label htmlFor="pass">Old Password: </label>
-            <input id="pass" type="password" name="pass" placeholder="old password" />
-            <label htmlFor="pass">New Password: </label>
-            <input id="pass2" type="password" name="pass2" placeholder="new password" />
-            <label htmlFor="pass">New Password: </label>
-            <input id="pass3" type="password" name="pass3" placeholder="retype new" />
-            <input className="formSubmit" type="submit" value="Change Password" />
-        </form>
-    );
-};
+const getPrem = async () => {
+    const response = await fetch('/setPremium', { method: 'post' });
+}
 
 // does a bunch of things on window load
 const init = async () => {
     const changePassButton = document.getElementById('changePassButton');
     const main = document.getElementById('mainScreenButton');
     const premiumBtn = document.getElementById('activatePremium');
+    const change = document.getElementById('change');
 
-    // sets up displaying the change pass form when 
-    // the appropriate button is clicked
-    changePassButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        ReactDOM.render(<ChangePassWindow />,
-            document.getElementById('MessageForm'));
-        document.querySelector('#messages').style.display = 'none';
-        return false;
-    });
-
+    change.style.display = 'none';
     // sets up displaying the main app form when 
     // the appropriate button is clicked
     main.addEventListener('click', e => {
         e.preventDefault();
+        change.style.display = 'none';
         ReactDOM.render(<MessageForm />,
             document.getElementById('MessageForm'));
         document.querySelector('#messages').style.display = 'block';
+        document.querySelector('#MessageForm').style.display = 'block';
         return false;
+    })
+
+    // sets up displaying the change pass form when 
+    // the appropriate button is clicked
+
+    // this solution was added because the night of submission
+    // I was running into a really dumb problem I couldn't
+    // solve even with ChatGTP. This solution is bad but at 
+    // least it avoids the error
+    changePassButton.addEventListener('click', e => {
+        change.style.display = 'block';
+        document.querySelector('#messages').style.display = 'none';
+        document.querySelector('#MessageForm').style.display = 'none';
     })
 
     // changes the premium status of the user
     // when the appropriate button is clicked
-    premiumBtn.addEventListener('click', async e => {
-        const response = await fetch('/setPremium', { method: 'post' });
-    })
+    premiumBtn.addEventListener('click', e => getPrem);
 
     // renders out the message sending box and its features
     ReactDOM.render(
         <MessageForm />,
         document.getElementById('MessageForm')
     );
+
+    ReactDOM.render(
+        <ChangePasswordWindow />,
+        document.getElementById('change')
+    );
+
 
      // renders out the post board and its features
     ReactDOM.render(
