@@ -10,7 +10,7 @@ const makerPage = async (req, res) => res.render('app');
 // a fun sort function on them while adding
 // extra fields for other purposes
 
-// IMPORTANT NOTE: this code portion was provided and helped by 
+// IMPORTANT NOTE: this code portion was provided and helped by
 // a stack overflow post (I think this one:
 // https://stackoverflow.com/questions/69393023/mongodb-aggregation-sort
 // although I don't know for sure bc I didn't see it),

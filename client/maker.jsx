@@ -242,10 +242,6 @@ const sendPass = (e) => {
     return false;
 }
 
-const getPrem = async () => {
-    const response = await fetch('/setPremium', { method: 'post' });
-}
-
 // does a bunch of things on window load
 const init = async () => {
     const changePassButton = document.getElementById('changePassButton');
@@ -281,7 +277,9 @@ const init = async () => {
 
     // changes the premium status of the user
     // when the appropriate button is clicked
-    premiumBtn.addEventListener('click', e => getPrem);
+    premiumBtn.addEventListener('click', async e => {
+        const response = await fetch('/setPremium', { method: 'post' });
+    });
 
     // renders out the message sending box and its features
     ReactDOM.render(
