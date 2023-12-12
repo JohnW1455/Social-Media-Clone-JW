@@ -2,6 +2,7 @@ const handleError = (message) => {
     document.getElementById('login-error').textContent = message;
 };
 
+// helper method for sending data to the server
 const sendPost = async (url, data) => {
   const response = await fetch(url, {
     method: 'POST',

@@ -1,6 +1,9 @@
 const controllers = require('./controllers');
 const mid = require('./middleware');
 
+// connects endpoints to the correct methods
+// utilizes middleware to make sure useris in specific
+// states when trying to access certain things
 const router = (app) => {
   app.get('/getMessages', mid.requiresLogin, controllers.Message.getMessages);
 
@@ -17,10 +20,6 @@ const router = (app) => {
 
   app.get('/isPremium', mid.requiresLogin, controllers.Account.getPremium);
   app.post('/setPremium', mid.requiresLogin, controllers.Account.setPremium);
-
-  app.post('/setLikes', mid.requiresLogin, controllers.Message.setLikes);
-
-  app.post('/addFollowed', mid.requiresLogin, controllers.Account.addFollowed);
 
   app.get('/', mid.requiresSecure, mid.requiresLogout, controllers.Account.loginPage);
 };

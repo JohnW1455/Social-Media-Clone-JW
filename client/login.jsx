@@ -4,6 +4,8 @@ const ReactDOM = require('react-dom');
 
 const { useState, useEffect } = React;
 
+// method that utilizes the sendPost helper method
+// contacts the server when someone tries to log in
 const handleLogin = (e) => {
     e.preventDefault();
 
@@ -20,9 +22,12 @@ const handleLogin = (e) => {
     return false;
 }
 
+// method that utilizes the sendPost helper method
+// contacts the server to update it with a new account
 const handleSignup = (e) => {
     e.preventDefault();
 
+    // basic checks to make sure all the fields are filled out
     const username = e.target.querySelector('#user').value;
     const pass = e.target.querySelector('#pass').value;
     const pass2 = e.target.querySelector('#pass2').value;
@@ -41,6 +46,7 @@ const handleSignup = (e) => {
     return false;
 }
 
+// sign up react component that lets users create a nwe account
 const SignupWindow = (props) => {
     return (
         <div id="signup-container">
@@ -64,6 +70,8 @@ const SignupWindow = (props) => {
     );
 };
 
+// react component that allows users to log into their account
+// and proceed to the app
 const LoginWindow = (props) => {
     return (
         <div id="signup-container">
@@ -85,6 +93,8 @@ const LoginWindow = (props) => {
     );
 };
 
+// method that sets and displays different things when
+// the create account button is clicked
 const HandleClick = (toggleBtn) => {
     const errorText = document.querySelector('#login-error');
     if (toggleBtn.innerHTML === 'Create Account') {
@@ -111,6 +121,7 @@ const init = () => {
         return false;
     });
 
+    // window starts on the log in screen
     ReactDOM.render(<LoginWindow />,
         document.querySelector('#login-input'));
 };

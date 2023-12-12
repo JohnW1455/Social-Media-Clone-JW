@@ -1,3 +1,6 @@
+// this file contains a bunch of server stuff to make sure 
+// it runs correctly and with the right add ons
+
 require('dotenv').config();
 const path = require('path');
 const express = require('express');
@@ -18,6 +21,7 @@ const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
 const dbURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1/TwitterCloneJW';
 
+// connects the server to database
 mongoose.connect(dbURI).catch((err) => {
   if (err) {
     console.log('Could not connect to database');
@@ -25,12 +29,14 @@ mongoose.connect(dbURI).catch((err) => {
   }
 });
 
+// creates a client for redis activity
 const redisClient = redis.createClient({
   url: process.env.REDISCLOUD_URL,
 });
 
 redisClient.on('error', (err) => console.log('Redis Client Error', err));
 
+// redis settings and more add ons
 redisClient.connect().then(() => {
   const app = express();
 
@@ -53,11 +59,13 @@ redisClient.connect().then(() => {
 
   app.use(sessionSettings);
 
+  // allows the use of handlebars pages
   app.engine('handlebars', expressHandlebars.engine({ defaultLayout: '' }));
   app.set('view engine', 'handlebars');
   app.set('views', `${__dirname}/../views`);
 
   router(app);
+  // setup for socket.io to work with the server
   const server = socketSetup(app, sessionSettings);
 
   server.listen(port, (err) => {

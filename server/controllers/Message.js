@@ -3,48 +3,62 @@ const models = require('../models');
 const { Message } = models;
 const { Account } = models;
 
+// displays the main app page when requested
 const makerPage = async (req, res) => res.render('app');
 
+// gets messages from the DB for users and performs
+// a fun sort function on them while adding
+// extra fields for other purposes
 const getMessages = async (req, res) => {
   console.log('getting messages');
   try {
+    // grabs account of user
     const account = await Account.findById(req.session.account._id);
 
     if (!account) {
-      throw new Error('Account not Found');
+      return res.status(500).json({ error: 'Error retrieving messages' });
     }
-
+    
+    // aggregate search allows of a very precise look into database
     const posts = await Message.aggregate([
       {
+        // add extra fields to data for things used
+        // in other places of the server and app
         $addFields: {
+          // bool for whether the message is from 
+          // an account the user follows
           isFollowed: {
             $cond: {
-              if: { $in: ["$sender", account.followedUsers] },
+              if: { $in: ['$sender', account.followedUsers] },
               then: true,
-              else: false
-            }
+              else: false,
+            },
           },
-          likeCount: {$size: "$usersLiked"},
+          // for display purposes
+          likeCount: { $size: '$usersLiked' },
+          // for displaying the follow button in the app
+          // for posts from people who aren't the user
           isOwnPost: {
             $cond: {
-              if: { $eq: [{$toString: "$sender"}, req.session.account._id] },
+              if: { $eq: [{ $toString: '$sender' }, req.session.account._id] },
               then: true,
-              else: false
-            }
-          }
-        }
+              else: false,
+            },
+          },
+        },
       },
       {
+        // displays messages based on following criteria
+        // 1. Followed account with high likes
+        // 2. Followed account with low likes
+        // 3. Non-Followed account with high likes
+        // 4. Non-Followed account with low likes
         $sort: {
           isFollowed: -1,
-          likeCount: -1
-        }
-      }
+          likeCount: -1,
+        },
+      },
     ]);
-
-    // const docs = await Message.find().select('username content usersLiked').sort({ createdDate: -1 })
-    //   .lean()
-    //   .exec();
 
     return res.json(posts);
   } catch (err) {
@@ -53,31 +67,7 @@ const getMessages = async (req, res) => {
   }
 };
 
-const setLikes = async (req, res) => {
-  console.log('setting likes');
-  try {
-    console.log(req.body.id);
-    const doc = await Message.findById(req.body.id);
-
-    console.log(doc);
-    if (doc.usersLiked.includes(req.session.account._id)) {
-      const newArray = doc.usersLiked.filter((user) => user !== req.session.account._id);
-      doc.usersLiked = newArray;
-    } else {
-      doc.usersLiked.push(req.session.account._id);
-    }
-    await doc.save();
-
-    console.log(`${doc.usersLiked.length} success`);
-    return res.status(200).json({ message: 'all good!' });
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json({ error: 'An error occured!' });
-  }
-};
-
 module.exports = {
   makerPage,
   getMessages,
-  setLikes,
 };

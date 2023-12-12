@@ -1,3 +1,4 @@
+// checks if the user is logged out
 const requiresLogin = (req, res, next) => {
   if (!req.session.account) {
     return res.redirect('/');
@@ -5,6 +6,7 @@ const requiresLogin = (req, res, next) => {
   return next();
 };
 
+// checks if the user is logged in
 const requiresLogout = (req, res, next) => {
   if (req.session.account) {
     return res.redirect('/maker');
@@ -13,6 +15,7 @@ const requiresLogout = (req, res, next) => {
   return next();
 };
 
+// makes sure the user is using https for secure connection
 const requiresSecure = (req, res, next) => {
   if (req.headers['x-forwarded-proto'] !== 'https') {
     return res.redirect(`https://${req.hostname}${req.url}`);
